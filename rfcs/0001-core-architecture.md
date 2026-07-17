@@ -378,6 +378,7 @@ flowchart LR
 
     subgraph "Preparation Stage"
         CR[Configuration Resolver]:::component
+        ER[Extension Registry]:::component
         CFG[(Scan Configuration)]:::artifact
 
         CR --> CFG
@@ -389,9 +390,12 @@ flowchart LR
 
     subgraph "Discovery Stage"
         DE[Discovery Engine]:::component
+        ADAPTER_DISC[Agent Adapter]:::component
         CG[(Capability Graph)]:::artifact
 
         CFG --> DE
+        ER --> DE
+        DE --> ADAPTER_DISC
         DE --> CG
     end
 
@@ -404,6 +408,8 @@ flowchart LR
         PLAN[(Attack Plan)]:::artifact
 
         CG --> AP
+        CFG --> AP
+        ER --> AP
         AP --> PLAN
     end
 
@@ -415,14 +421,18 @@ flowchart LR
         ORCH[Orchestrator]:::component
         ADAPTER[Agent Adapter]:::component
         TARGET{{Target AI System}}:::external
-        EVIDENCE[(Execution Evidence)]:::artifact
+        TRACES[(Execution Traces)]:::artifact
+        STORE[Evidence Store]:::component
+        EVIDENCE_REF[(Evidence References)]:::artifact
 
         PLAN --> ORCH
         ORCH --> ADAPTER
         ADAPTER --> TARGET
         TARGET --> ADAPTER
         ADAPTER --> ORCH
-        ORCH --> EVIDENCE
+        ORCH --> TRACES
+        TRACES --> STORE
+        STORE --> EVIDENCE_REF
     end
 
     %% =========================
@@ -433,7 +443,8 @@ flowchart LR
         ENGINE[Evaluation Engine]:::component
         FINDINGS[(Evaluation Findings)]:::artifact
 
-        EVIDENCE --> ENGINE
+        TRACES -.->|direct handoff| ENGINE
+        EVIDENCE_REF --> ENGINE
         ENGINE --> FINDINGS
     end
 
@@ -452,17 +463,17 @@ flowchart LR
 
         FINDINGS -.-> REPORTER
         SCORES -.-> REPORTER
-        EVIDENCE -.-> REPORTER
+        EVIDENCE_REF -.-> REPORTER
 
         REPORTER --> REPORT
     end
 ```
 
-The interaction model separates discovery, planning, execution, evaluation, scoring, and reporting into independent architectural stages. Each stage produces a new architectural artifact that becomes the input for subsequent stages. Components communicate exclusively through these artifacts rather than through direct knowledge of one another's internal implementation.
+The interaction model separates discovery, planning, execution, evaluation, scoring, and reporting into independent architectural stages. Each stage produces a new architectural artifact that becomes the input for subsequent stages. As a general pattern, pipeline stages communicate through artifacts rather than through direct knowledge of one another's internal implementation. The Orchestrator-to-Agent Adapter interaction is an explicit, intentional exception to this pattern: it represents a direct interface-boundary call necessary to execute the evaluation plan against the target system, rather than an artifact-mediated handoff.
 
 The Agent Adapter is the sole communication boundary between the AEGIS core architecture and target AI systems. Provider-specific behavior MUST remain isolated behind this abstraction and MUST NOT propagate into the core architecture.
 
-Execution evidence is the architectural source of truth for the evaluation process. Findings, scores, and reports MUST be derived from recorded execution evidence rather than directly from live interactions with the target system.
+Execution evidence is the architectural source of truth for the evaluation process. The Orchestrator produces execution traces that are persisted through the Evidence Store, which provides evidence references for downstream stages. The Evaluation Engine receives both direct execution trace handoffs (for immediate analysis) and evidence references (for traceability and replayability). Findings, scores, and reports MUST be derived from recorded execution evidence rather than directly from live interactions with the target system.
 
 ## Package Responsibilities
 
