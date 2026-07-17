@@ -18,7 +18,13 @@ Detailed designs for individual subsystems (such as the plugin system, adapter i
 
 ## Summary
 
-<Ye wahi final summary hogi jo hum review karke finalize karenge.>
+This RFC establishes the foundational architecture of AEGIS.
+
+It defines the architectural scope, system boundaries, core principles, component model, interaction workflow, package responsibilities, and the primary goals of the project. The architecture is designed around provider independence, evidence-driven evaluation, modularity, extensibility, and reproducible engineering workflows.
+
+This RFC intentionally does not specify the detailed design of individual subsystems such as the plugin system, adapter interfaces, evaluation engines, scoring model, or reporting formats. These concerns are deferred to future RFCs.
+
+Together, the decisions in this document define the architectural foundation upon which all subsequent AEGIS development and architecture RFCs will build.
 
 ---
 
