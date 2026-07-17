@@ -352,6 +352,128 @@ Generate human-readable and machine-readable reports from evaluation outputs.
 - Modify findings.
 - Recalculate scores.
 ---
+### System Interaction Model
+
+The AEGIS evaluation workflow is organized as a sequence of independent architectural stages.
+
+Each stage owns the artifacts it produces and exposes them through stable contracts. Downstream components consume these artifacts but MUST NOT modify them. Ownership is transferred only through the creation of new artifacts rather than mutation of existing ones.
+
+The high-level interaction model is illustrated below.
+
+```mermaid
+flowchart LR
+
+    %% =========================
+    %% Styles
+    %% =========================
+
+    classDef component fill:#fff3e0,stroke:#f57c00,stroke-width:2px,color:#000
+    classDef artifact fill:#e8f5e9,stroke:#388e3c,stroke-width:2px,color:#000
+    classDef external fill:#ffebee,stroke:#d32f2f,stroke-width:2px,color:#000
+    classDef report fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px,color:#000
+
+    %% =========================
+    %% Preparation
+    %% =========================
+
+    subgraph "Preparation Stage"
+        CR[Configuration Resolver]:::component
+        ER[Extension Registry]:::component
+        CFG[(Scan Configuration)]:::artifact
+
+        CR --> CFG
+    end
+
+    %% =========================
+    %% Discovery
+    %% =========================
+
+    subgraph "Discovery Stage"
+        DE[Discovery Engine]:::component
+        ADAPTER_DISC[Agent Adapter]:::component
+        CG[(Capability Graph)]:::artifact
+
+        CFG --> DE
+        ER --> DE
+        DE --> ADAPTER_DISC
+        DE --> CG
+    end
+
+    %% =========================
+    %% Planning
+    %% =========================
+
+    subgraph "Planning Stage"
+        AP[Attack Planner]:::component
+        PLAN[(Attack Plan)]:::artifact
+
+        CG --> AP
+        CFG --> AP
+        ER --> AP
+        AP --> PLAN
+    end
+
+    %% =========================
+    %% Execution
+    %% =========================
+
+    subgraph "Execution Stage"
+        ORCH[Orchestrator]:::component
+        ADAPTER[Agent Adapter]:::component
+        TARGET{{Target AI System}}:::external
+        TRACES[(Execution Traces)]:::artifact
+        STORE[Evidence Store]:::component
+        EVIDENCE_REF[(Evidence References)]:::artifact
+
+        PLAN --> ORCH
+        ORCH --> ADAPTER
+        ADAPTER --> TARGET
+        TARGET --> ADAPTER
+        ADAPTER --> ORCH
+        ORCH --> TRACES
+        TRACES --> STORE
+        STORE --> EVIDENCE_REF
+    end
+
+    %% =========================
+    %% Evaluation
+    %% =========================
+
+    subgraph "Evaluation Stage"
+        ENGINE[Evaluation Engine]:::component
+        FINDINGS[(Evaluation Findings)]:::artifact
+
+        TRACES -.->|direct handoff| ENGINE
+        EVIDENCE_REF --> ENGINE
+        ENGINE --> FINDINGS
+    end
+
+    %% =========================
+    %% Reporting
+    %% =========================
+
+    subgraph "Reporting Stage"
+        SCORE[Scoring Engine]:::component
+        SCORES[(Evaluation Scores)]:::artifact
+        REPORTER[Reporter]:::component
+        REPORT[(HTML / JSON / CLI Reports)]:::report
+
+        FINDINGS --> SCORE
+        SCORE --> SCORES
+
+        FINDINGS -.-> REPORTER
+        SCORES -.-> REPORTER
+        EVIDENCE_REF -.-> REPORTER
+
+        REPORTER --> REPORT
+    end
+```
+
+The interaction model separates discovery, planning, execution, evaluation, scoring, and reporting into independent architectural stages. Each stage produces a new architectural artifact that becomes the input for subsequent stages. As a general pattern, pipeline stages communicate through artifacts rather than through direct knowledge of one another's internal implementation. The Orchestrator-to-Agent Adapter interaction is an explicit, intentional exception to this pattern: it represents a direct interface-boundary call necessary to execute the evaluation plan against the target system, rather than an artifact-mediated handoff.
+
+The Agent Adapter is the sole communication boundary between the AEGIS core architecture and target AI systems. Provider-specific behavior MUST remain isolated behind this abstraction and MUST NOT propagate into the core architecture.
+
+Execution evidence is the architectural source of truth for the evaluation process. The Orchestrator produces execution traces that are persisted through the Evidence Store, which provides evidence references for downstream stages. The Evaluation Engine receives both direct execution trace handoffs (for immediate analysis) and evidence references (for traceability and replayability). Findings, scores, and reports MUST be derived from recorded execution evidence rather than directly from live interactions with the target system.
 
 ## Package Responsibilities
 
