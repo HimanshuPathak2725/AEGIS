@@ -477,6 +477,47 @@ Execution evidence is the architectural source of truth for the evaluation proce
 
 ## Package Responsibilities
 
-> TODO
+The AEGIS implementation is organized as a collection of independently evolvable packages. Each package owns a single architectural responsibility and exposes its functionality through stable public interfaces.
+
+Packages MUST communicate only through documented architectural contracts. No package may depend upon or assume knowledge of another package's internal implementation.
+
+The initial package organization is expected to follow the responsibilities defined below.
+
+| Package | Responsibility |
+|----------|----------------|
+| `@aegis/core` | Owns the evaluation workflow, orchestration lifecycle, architectural contracts, and the canonical domain model of the AEGIS architecture. |
+| `@aegis/cli` | Provides the command-line interface, configuration loading, user interaction, and the entry point for evaluation workflows. The CLI coordinates execution but MUST NOT contain evaluation or orchestration logic. |
+| `@aegis/adapters/*` | Implements provider-specific integrations behind the common Agent Adapter interface. Adapters are responsible for translating provider-specific behavior into architecture-defined contracts without exposing provider implementation details to the core architecture. |
+| `@aegis/plugins/*` | Implements independently developed extensions that contribute discovery, planning, evaluation, reporting, or other evaluation capabilities without requiring modifications to the core architecture. |
+| `@aegis/reporters/*` | Transforms evaluation artifacts into human-readable and machine-readable representations without modifying evaluation findings or scores. |
+| `@aegis/shared` *(optional)* | Provides implementation-independent primitives shared across packages, including common schemas, types, and utilities. This package MUST NOT contain business logic, orchestration behavior, provider integrations, or architectural ownership. |
+
+The package organization defined by this RFC establishes architectural ownership only. Internal directory layouts, implementation details, package APIs, dependency management, and build systems are intentionally outside the scope of this RFC and will be defined by subsequent RFCs as the project evolves.
+
+## Open Questions
+
+The following architectural questions are intentionally left unresolved by this RFC. These decisions do not affect the architectural principles or component model defined in this document, but they are expected to influence future architecture RFCs as the implementation evolves.
+
+1. **Discovery Strategy**
+
+   Should the Discovery Engine support runtime introspection, static capability declarations, or both as first-class discovery strategies?
+
+2. **Plugin Loading Model**
+
+   Should extensions be discovered statically during initialization, dynamically at runtime, or through a hybrid plugin loading mechanism?
+
+3. **Evidence Persistence**
+
+   Should execution evidence always be persisted as part of every evaluation, or should evidence persistence be configurable based on deployment environment, performance requirements, or organizational policy?
+
+4. **Evaluation Execution Model**
+
+   Should evaluation engines execute sequentially, in parallel, or through a distributed execution model while preserving reproducibility and deterministic evaluation methodology?
+
+5. **Scoring Extensibility**
+
+   Should the scoring system remain part of the core architecture, or should alternative scoring models be implemented as independently extensible plugins?
+
+These questions intentionally remain outside the scope of RFC-0001 and are expected to be resolved through future architecture RFCs as implementation experience is gained.
 
 ...
