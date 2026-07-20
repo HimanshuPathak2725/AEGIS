@@ -46,7 +46,11 @@ An Extension Point is an architectural surface explicitly declared by the AEGIS 
 
 ### Capability
 
-<!-- TODO -->
+A Capability is a discrete functional unit contributed by a plugin that binds to exactly one declared Extension Point within the AEGIS architecture.
+
+A Capability represents the smallest discrete unit of architectural extension recognized by the AEGIS framework.
+
+Multiple related capabilities MAY be packaged within a single plugin, but each Capability MUST bind to exactly one declared Extension Point.
 
 ### Contract
 
