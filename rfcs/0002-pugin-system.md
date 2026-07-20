@@ -8,6 +8,12 @@ Created: 2026-07-20
 
 ## Scope
 
+This RFC defines the architectural model for extending AEGIS through independently developed plugins.
+
+It specifies the terminology, architectural principles, extension boundaries, lifecycle, compatibility model, and package organization required to build plugins that integrate with the AEGIS core architecture.
+
+This RFC intentionally does not define runtime APIs, language-specific interfaces, plugin implementations, or distribution mechanisms. These topics are expected to be specified by future implementation-oriented RFCs.
+
 ---
 
 ## Summary
