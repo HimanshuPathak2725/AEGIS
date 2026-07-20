@@ -54,7 +54,11 @@ Multiple related capabilities MAY be packaged within a single plugin, but each C
 
 ### Contract
 
-<!-- TODO -->
+A Contract is an architectural specification that defines the structural constraints and mutual obligations between the AEGIS core and a Capability bound to an Extension Point.
+
+A Contract defines what a Capability and the AEGIS core may rely upon at an Extension Point without prescribing how either side fulfills those obligations.
+
+Contracts are architectural constructs and MUST NOT be interpreted as language-specific interfaces, runtime APIs, or implementation mechanisms.
 
 ### Registry
 
