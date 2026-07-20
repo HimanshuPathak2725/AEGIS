@@ -42,7 +42,7 @@ Plugins contribute capabilities through stable extension points while remaining 
 
 ### Extension Point
 
-<!-- TODO -->
+An Extension Point is an architectural surface explicitly declared by the AEGIS core through which external plugins may contribute capabilities. What an Extension Point exposes is an abstraction owned and defined by the core, never direct access to core internals or state. Everything not explicitly declared as an Extension Point remains an internal implementation detail of the AEGIS core.
 
 ### Capability
 
@@ -84,9 +84,13 @@ Plugins MUST NOT bypass declared extension points or directly depend on internal
 
 ---
 
-## Extension Points
+### Extension Point
 
-<!-- TODO -->
+An Extension Point is an architectural surface explicitly declared by the AEGIS core through which external plugins may contribute capabilities.
+
+What an Extension Point exposes is an abstraction owned and defined by the core, never direct access to core internals or state.
+
+Everything not explicitly declared as an Extension Point MUST be treated as an internal implementation detail of the AEGIS core and MUST NOT be depended upon by plugins.
 
 ---
 
