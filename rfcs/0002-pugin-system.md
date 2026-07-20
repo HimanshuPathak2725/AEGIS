@@ -62,7 +62,11 @@ Contracts are architectural constructs and MUST NOT be interpreted as language-s
 
 ### Registry
 
-<!-- TODO -->
+A Registry is an architectural catalog of plugins, their declared capabilities, and the architectural metadata required for framework validation by the AEGIS core.
+
+A Registry records structural information required for framework validation without owning plugin implementations, managing package resolution, or controlling the execution lifecycle.
+
+Registries are architectural constructs and MUST NOT be interpreted as package managers, dependency injection containers, or runtime execution mechanisms.
 
 ---
 
