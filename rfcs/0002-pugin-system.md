@@ -108,7 +108,89 @@ Everything not explicitly declared as an Extension Point MUST be treated as an i
 
 ## Plugin Lifecycle
 
-<!-- TODO -->
+In accordance with **Execution Invariant 4 (Lifecycle Authority)**, plugins and their capabilities are passive architectural participants whose lifecycle is governed exclusively by the AEGIS core framework.
+
+The plugin lifecycle defines the architectural progression through which a capability becomes eligible to participate in the evaluation pipeline. These states describe architectural transitions rather than runtime implementation mechanisms.
+
+```text
+┌───────────┐
+│   Index   │
+└─────┬─────┘
+      │
+      ▼
+┌───────────┐
+│ Validate  │
+└─────┬─────┘
+      │
+      ▼
+┌───────────┐
+│   Bind    │
+└─────┬─────┘
+      │
+      ▼
+┌───────────┐
+│Participate│
+└─────┬─────┘
+      │
+      ▼
+┌───────────┐
+│  Detach   │
+└───────────┘
+```
+
+### 1. Index
+
+During the Index state, the framework records available plugins and their declared capabilities within the Registry using their architectural metadata.
+
+Only declarative plugin information participates in this state. No capability becomes eligible for execution solely by being indexed.
+
+---
+
+### 2. Validate
+
+The framework evaluates each indexed plugin against the architectural requirements defined by the AEGIS core.
+
+Validation includes verification of declared Extension Point bindings, Contract compatibility, supported framework versions, and any other architectural constraints required for participation in the evaluation lifecycle.
+
+Capabilities that fail validation MUST NOT participate in subsequent lifecycle states.
+
+---
+
+### 3. Bind
+
+Validated capabilities are associated with their declared Extension Points according to the Contracts defined by the AEGIS core.
+
+Binding establishes architectural relationships between Capabilities, Extension Points, and Contracts. It does not imply execution, runtime initialization, or implementation-specific resource allocation.
+
+---
+
+### 4. Participate
+
+The framework invokes bound capabilities only as dictated by the evaluation lifecycle.
+
+Each capability receives only the Input Artifact Set defined by its bound Extension Point and is expected to produce the corresponding Output Artifact Set defined by the associated Contract.
+
+Capabilities remain architecturally isolated throughout participation and MUST NOT observe or influence framework state beyond the boundaries defined by their Extension Point.
+
+---
+
+### 5. Detach
+
+Once participation in the evaluation lifecycle concludes, the framework detaches the capability from the active lifecycle.
+
+Detachment marks the end of the architectural relationship between the capability and the current evaluation cycle. Any implementation-specific cleanup or resource management remains outside the scope of this RFC.
+
+---
+
+### Lifecycle Properties
+
+The plugin lifecycle satisfies the execution invariants defined earlier in this RFC.
+
+- The framework exclusively governs lifecycle progression.
+- Plugins cannot transition themselves between lifecycle states.
+- Lifecycle transitions are unidirectional for a single evaluation cycle.
+- Architectural participation begins only after successful validation and binding.
+- Completion of participation terminates the capability's involvement in the current evaluation cycle.
 
 ---
 
